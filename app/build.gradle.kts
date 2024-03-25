@@ -9,6 +9,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.4"
 	id("com.github.ben-manes.versions") version "0.50.0"
 	id("io.freefair.lombok") version "8.4"
+	id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "hexlet.code"
