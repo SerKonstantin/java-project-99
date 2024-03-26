@@ -41,6 +41,7 @@ dependencies {
 
 	implementation("org.instancio:instancio-junit:3.6.0")
 	runtimeOnly("com.h2database:h2:2.2.224")
+	runtimeOnly("org.postgresql:postgresql:42.7.3")
 	// Data Faker?
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
