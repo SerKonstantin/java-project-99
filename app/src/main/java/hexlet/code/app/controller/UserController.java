@@ -1,45 +1,55 @@
 package hexlet.code.app.controller;
 
-import hexlet.code.app.exception.ResourceNotFoundException;
-import hexlet.code.app.model.User;
-import hexlet.code.app.repository.UserRepository;
+import hexlet.code.app.dto.userDto.UserCreateDTO;
+import hexlet.code.app.dto.userDto.UserDTO;
+import hexlet.code.app.dto.userDto.UserUpdateDTO;
+import hexlet.code.app.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    @GetMapping(path = "")
-    public List<User> index() {
-        createDummyUser();          // DELETE
-        return userRepository.findAll();
+    @GetMapping("")
+    public List<UserDTO> index() {
+        return userService.getAll();
     }
 
-    @GetMapping(path = "/{id}")
-    public User show(@PathVariable long id) {
-        var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
-        return user;
+    @GetMapping("/{id}")
+    public UserDTO show(@PathVariable long id) {
+        return userService.getById(id);
     }
 
-    // Tmp dummy
-    private User createDummyUser() {
-        var user = new User();
-        user.setFirstName("Arya");
-        user.setLastName("Stark");
-        user.setEmail("arya@gmail.com");
-        user.setPassword("some_password");
-        userRepository.save(user);
-        return user;
+    @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDTO create(@Valid @RequestBody UserCreateDTO data) {
+        return userService.create(data);
     }
 
+    @PutMapping("/{id}")
+    public UserDTO update(@Valid @RequestBody UserUpdateDTO data, @PathVariable long id) {
+        return userService.update(data, id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable long id) {
+        userService.delete(id);
+    }
 }
