@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dto.userDto.UserCreateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.UserMapper;
-import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
 import net.datafaker.Faker;
 import org.instancio.Instancio;
@@ -58,11 +57,10 @@ public class UserControllerTest {
     // TODO hash password
     private UserCreateDTO generateUserDTO() {
         return Instancio.of(UserCreateDTO.class)
-                .ignore(Select.field(User::getId))
-                .supply(Select.field(User::getFirstName), () -> faker.name().firstName())
-                .supply(Select.field(User::getLastName), () -> faker.name().lastName())
-                .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
-                .supply(Select.field(User::getHashedPassword), () -> faker.internet().password(3, 20))
+                .supply(Select.field(UserCreateDTO::getFirstName), () -> faker.name().firstName())
+                .supply(Select.field(UserCreateDTO::getLastName), () -> faker.name().lastName())
+                .supply(Select.field(UserCreateDTO::getEmail), () -> faker.internet().emailAddress())
+                .supply(Select.field(UserCreateDTO::getHashedPassword), () -> faker.internet().password(3, 20))
                 .create();
     }
 
@@ -95,12 +93,12 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        var responseBody =result.getResponse().getContentAsString();
+        var responseBody = result.getResponse().getContentAsString();
 
         assertThatJson(responseBody).and(
                 body -> body.node("firstName").isEqualTo(userData.getFirstName()),
                 body -> body.node("lastName").isEqualTo(userData.getLastName()),
-                body -> body.node("hashedPassword").isEqualTo(userData.getHashedPassword())
+                body -> body.node("email").isEqualTo(userData.getEmail())
         );
 
     }
@@ -123,7 +121,7 @@ public class UserControllerTest {
         updateData.put("lastName", newLastName);
         updateData.put("hashedPassword", newHashedPassword);
 
-        var request =put("/api/users/{id}", id)
+        var request = put("/api/users/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(updateData));
 
@@ -150,7 +148,7 @@ public class UserControllerTest {
         var updateData = new HashMap<>();
         updateData.put("firstName", newFirstName);
 
-        var request =put("/api/users/{id}", id)
+        var request = put("/api/users/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(updateData));
 
@@ -175,7 +173,7 @@ public class UserControllerTest {
         assertThat(userRepository.findById(id)).isPresent();
 
         mockMvc.perform(delete("/api/users/{id}", id))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         assertThat(userRepository.findById(id)).isEmpty();
     }
