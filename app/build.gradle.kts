@@ -39,16 +39,16 @@ dependencies {
 	implementation("org.mapstruct:mapstruct:1.5.5.Final")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
-	implementation("org.instancio:instancio-junit:3.6.0")
 	runtimeOnly("com.h2database:h2:2.2.224")
 	runtimeOnly("org.postgresql:postgresql:42.7.3")
-	// Data Faker?
 
+	implementation("org.instancio:instancio-junit:4.5.0")
+	implementation("net.datafaker:datafaker:2.1.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 //	testImplementation("org.springframework.security:spring-security-test")
-	testImplementation(platform("org.junit:junit-bom:5.10.0"))
-	testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-	testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
+	testImplementation(platform("org.junit:junit-bom:5.10.2"))
+	testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+	testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.7")
 }
 
 tasks.withType<Test> {
