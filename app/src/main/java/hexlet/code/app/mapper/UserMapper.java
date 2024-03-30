@@ -5,6 +5,7 @@ import hexlet.code.app.dto.userDto.UserDTO;
 import hexlet.code.app.dto.userDto.UserUpdateDTO;
 import hexlet.code.app.model.User;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -18,9 +19,12 @@ import org.mapstruct.ReportingPolicy;
 )
 public abstract class UserMapper {
 
+    @Mapping(target = "hashedPassword", source = "password")
     public abstract User map(UserCreateDTO dto);
 
+    // Fields are matching, explicit mapping is not required
     public abstract UserDTO map(User model);
 
+    @Mapping(target = "hashedPassword", source = "password")
     public abstract void update(UserUpdateDTO dto, @MappingTarget User model);
 }

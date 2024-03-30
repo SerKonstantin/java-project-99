@@ -19,5 +19,5 @@ public class UserCreateDTO {
     private String lastName;
 
     @Size(min = 3)
-    private String hashedPassword;
+    private String password;
 }

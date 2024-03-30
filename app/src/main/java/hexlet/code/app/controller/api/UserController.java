@@ -1,4 +1,4 @@
-package hexlet.code.app.controller;
+package hexlet.code.app.controller.api;
 
 import hexlet.code.app.dto.userDto.UserCreateDTO;
 import hexlet.code.app.dto.userDto.UserDTO;
