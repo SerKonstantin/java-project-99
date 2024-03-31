@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 
@@ -49,6 +50,9 @@ public class UserControllerTest {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private JwtRequestPostProcessor token;
 
     private User testUser;
@@ -56,15 +60,16 @@ public class UserControllerTest {
     @BeforeEach
     public void setUp() {
         token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
+        var hashedPassword = passwordEncoder.encode(faker.internet().password(3, 20));
         var userData = Instancio.of(UserCreateDTO.class)
                 .supply(Select.field(UserCreateDTO::getFirstName), () -> faker.name().firstName())
                 .supply(Select.field(UserCreateDTO::getLastName), () -> faker.name().lastName())
                 .supply(Select.field(UserCreateDTO::getEmail), () -> faker.internet().emailAddress())
-                // TODO mb hash the password?
-                .supply(Select.field(UserCreateDTO::getPassword), () -> faker.internet().password(3, 20))
+                .supply(Select.field(UserCreateDTO::getPassword), () -> hashedPassword)
                 .create();
         testUser = userMapper.map(userData);
         userRepository.save(testUser);
+
     }
 
     @AfterEach
@@ -89,7 +94,7 @@ public class UserControllerTest {
                 "firstName", faker.name().firstName(),
                 "lastName", faker.name().lastName(),
                 "email", faker.internet().emailAddress(),
-                "password", faker.internet().password(3, 12)
+                "password", faker.internet().password(3, 20)
         );
 
         var request = post("/api/users")
@@ -108,6 +113,45 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testCreateWithoutNames() throws Exception {
+        var createData = Map.of(
+                "email", faker.internet().emailAddress(),
+                "password", faker.internet().password(3, 20)
+        );
+
+        var request = post("/api/users")
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(createData));
+
+        mockMvc.perform(request).andExpect(status().isCreated());
+
+        var user = userRepository.findByEmail(createData.get("email"))
+                .orElseThrow(() -> new ResourceNotFoundException("\ntestCreate() in UserControllerTest failed\n"));
+
+        assertThat(user.getFirstName()).isNull();
+        assertThat(user.getLastName()).isNull();
+        assertThat(user.getHashedPassword()).isNotEqualTo(createData.get("password"));
+    }
+
+    @Test
+    public void testCreateWithInvalidData() throws Exception {
+        var createData = Map.of(
+                "firstName", faker.name().firstName(),
+                "lastName", faker.name().lastName(),
+                "email", "not a valid email",
+                "password", "a"
+        );
+
+        var request = post("/api/users")
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(createData));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void testShow() throws Exception {
         var id = testUser.getId();
         var request = get("/api/users/{id}", id).with(token);
@@ -122,6 +166,21 @@ public class UserControllerTest {
                 body -> body.node("lastName").isEqualTo(testUser.getLastName()),
                 body -> body.node("email").isEqualTo(testUser.getEmail())
         );
+    }
+
+    @Test
+    public void testShowWithInvalidId() throws Exception {
+        var id = testUser.getId();
+        userRepository.deleteById(id);
+
+        var request = get("/api/users/{id}", id).with(token);
+        var result = mockMvc.perform(request).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testShowNotAuthenticated() throws Exception {
+        var request = get("/api/users/{id}", testUser.getId());
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -176,6 +235,21 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testUpdateWithInvalidData() throws Exception {
+        var updateData = Map.of(
+                "email", "not a valid email",
+                "password", "a"
+        );
+
+        var request = put("/api/users/{id}", testUser.getId())
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(updateData));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void testDelete() throws Exception {
         var id = testUser.getId();
 
@@ -186,5 +260,4 @@ public class UserControllerTest {
 
         assertThat(userRepository.findById(id)).isEmpty();
     }
-
 }
