@@ -1,9 +1,9 @@
 package hexlet.code.app.controller.api;
 
-import hexlet.code.app.dto.userDto.UserCreateDTO;
-import hexlet.code.app.dto.userDto.UserDTO;
-import hexlet.code.app.dto.userDto.UserUpdateDTO;
-import hexlet.code.app.service.UserService;
+import hexlet.code.app.dto.user.UserCreateDTO;
+import hexlet.code.app.dto.user.UserDTO;
+import hexlet.code.app.dto.user.UserUpdateDTO;
+import hexlet.code.app.service.UsersService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,10 +21,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-public class UserController {
+public class UsersController {
 
     @Autowired
-    private UserService userService;
+    private UsersService userService;
 
     @GetMapping("")
     public List<UserDTO> index() {
