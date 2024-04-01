@@ -19,12 +19,10 @@ jobs:
           gradle-version: 8.5
 
       - name: Set RSA keys as environment variables
-        env:
-          RSA_PRIVATE_KEY: ${{ secrets.RSA_PRIVATE_KEY }}
-          RSA_PUBLIC_KEY: ${{ secrets.RSA_PUBLIC_KEY }}
         run: |
-          echo "RSA_PRIVATE_KEY=${RSA_PRIVATE_KEY}" >> $GITHUB_ENV
-          echo "RSA_PUBLIC_KEY=${RSA_PUBLIC_KEY}" >> $GITHUB_ENV    
+          echo "RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }}" >> $GITHUB_ENV
+          echo "RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }}" >> $GITHUB_ENV
+        shell: bash
 
       - run: make lint
       - run: make test
