@@ -10,5 +10,5 @@ spring:
     default: development
 
 rsa:
-  private-key: classpath:certs/private.pem
-  public-key: classpath:certs/public.pem
+  private-key: ${RSA_PRIVATE_KEY:classpath:certs/private.pem}
+  public-key: ${RSA_PUBLIC_KEY:classpath:certs/public.pem}
