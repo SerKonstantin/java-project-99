@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,18 +19,19 @@ public class DataInitializer implements ApplicationRunner {
     @Autowired
     private final CustomUserDetailsService userService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    @Override
     public void run(ApplicationArguments args) throws Exception {
         var email = "hexlet@example.com";
         var password = "qwerty";
-        var userData = new User();
-        userData.setEmail(email);
-        userData.setHashedPassword(password);
-        userService.createUser(userData);
+
+        if (userRepository.findByEmail(email).isEmpty()) {
+            var userData = new User();
+            userData.setEmail(email);
+            userData.setHashedPassword(password);
+            userService.createUser(userData);
+        }
 
         // TODO create faker users with tasks and assignments
-    }
 
+    }
 }
