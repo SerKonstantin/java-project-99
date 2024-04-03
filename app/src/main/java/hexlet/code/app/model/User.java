@@ -43,7 +43,7 @@ public class User implements UserDetails, BaseEntity {
     private String email;
 
     @Size(min = 3)
-    private String hashedPassword;
+    private String encryptedPassword;
 
     @CreatedDate
     private LocalDate createdAt;
@@ -59,7 +59,7 @@ public class User implements UserDetails, BaseEntity {
 
     @Override
     public String getPassword() {
-        return hashedPassword;
+        return encryptedPassword;
     }
 
     @Override

@@ -19,12 +19,12 @@ import org.mapstruct.ReportingPolicy;
 )
 public abstract class UserMapper {
 
-    @Mapping(target = "hashedPassword", source = "password")
+    @Mapping(target = "encryptedPassword", source = "password")
     public abstract User map(UserCreateDTO dto);
 
     // Fields are matching, explicit mapping is not required
     public abstract UserDTO map(User model);
 
-    @Mapping(target = "hashedPassword", source = "password")
+    @Mapping(target = "encryptedPassword", source = "password")
     public abstract void update(UserUpdateDTO dto, @MappingTarget User model);
 }

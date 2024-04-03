@@ -109,7 +109,7 @@ public class UserControllerTest {
 
         assertThat(user.getFirstName()).isEqualTo(createData.get("firstName"));
         assertThat(user.getLastName()).isEqualTo(createData.get("lastName"));
-        assertThat(user.getHashedPassword()).isNotEqualTo(createData.get("password"));
+        assertThat(user.getEncryptedPassword()).isNotEqualTo(createData.get("password"));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class UserControllerTest {
 
         assertThat(user.getFirstName()).isNull();
         assertThat(user.getLastName()).isNull();
-        assertThat(user.getHashedPassword()).isNotEqualTo(createData.get("password"));
+        assertThat(user.getEncryptedPassword()).isNotEqualTo(createData.get("password"));
     }
 
     @Test
@@ -191,7 +191,7 @@ public class UserControllerTest {
                 "firstName", faker.name().firstName(),
                 "lastName", faker.name().lastName(),
                 "email", faker.internet().emailAddress(),
-                "password", faker.internet().password(3, 12)
+                "password", faker.internet().password(3, 20)
         );
 
         var request = put("/api/users/{id}", id)
@@ -207,7 +207,7 @@ public class UserControllerTest {
         assertThat(updatedUser.getEmail()).isEqualTo(updateData.get("email"));
         assertThat(updatedUser.getFirstName()).isEqualTo(updateData.get("firstName"));
         assertThat(updatedUser.getLastName()).isEqualTo(updateData.get("lastName"));
-        assertThat(updatedUser.getHashedPassword()).isNotEqualTo(updateData.get("password"));
+        assertThat(updatedUser.getEncryptedPassword()).isNotEqualTo(updateData.get("password"));
     }
 
     @Test
@@ -231,7 +231,7 @@ public class UserControllerTest {
         assertThat(updatedUser.getEmail()).isEqualTo(testUser.getEmail());
         assertThat(updatedUser.getFirstName()).isEqualTo(updateData.get("firstName"));
         assertThat(updatedUser.getLastName()).isEqualTo(testUser.getLastName());
-        assertThat(updatedUser.getHashedPassword()).isEqualTo(testUser.getPassword());
+        assertThat(updatedUser.getEncryptedPassword()).isEqualTo(testUser.getPassword());
     }
 
     @Test
