@@ -39,8 +39,8 @@ public class UsersService {
 
     public UserDTO create(UserCreateDTO data) {
         var user = userMapper.map(data);
-        var hashedPassword = passwordEncoder.encode(data.getPassword());
-        user.setEncryptedPassword(hashedPassword);
+        var encryptedPassword = passwordEncoder.encode(data.getPassword());
+        user.setEncryptedPassword(encryptedPassword);
         userRepository.save(user);
         return userMapper.map(user);
     }

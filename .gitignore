@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Front build module ###
+node_modules/
+package.json
+package-lock.json
