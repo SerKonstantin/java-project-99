@@ -21,6 +21,8 @@ import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +32,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 
 import java.util.Map;
-import java.util.Optional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -135,28 +136,24 @@ public class UserControllerTest {
         assertThat(user.getEncryptedPassword()).isNotEqualTo(createData.get("password"));
     }
 
-    @Test
-    public void testCreateWithInvalidData() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+            "faker.internet().emailAddress(), 'ab'",
+            "faker.internet().emailAddress(), ''",
+            "faker.internet().emailAddress(), null",
+            "faker.internet().emailAddress(), Optional.empty()",
+            "'not_email', faker.internet().password(3, 20)",
+            "'', faker.internet().password(3, 20)",
+            "null, faker.internet().password(3, 20)",
+            "Optional.empty(), faker.internet().password(3, 20)"
+
+    })
+    public void testCreateWithInvalidData(String email, String password) throws Exception {
         var createData = Map.of(
                 "firstName", faker.name().firstName(),
                 "lastName", faker.name().lastName(),
-                "email", "not a valid email",
-                "password", "a"
-        );
-
-        var request = post("/api/users")
-                .with(token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(createData));
-
-        mockMvc.perform(request).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testCreateWithEmptyPassword() throws Exception {
-        var createData = Map.of(
-                "email", faker.internet().emailAddress(),
-                "password", Optional.empty()
+                "email", email,
+                "password", password
         );
 
         var request = post("/api/users")
@@ -250,25 +247,22 @@ public class UserControllerTest {
         assertThat(updatedUser.getEncryptedPassword()).isEqualTo(testUser.getPassword());
     }
 
-    @Test
-    public void testUpdateWithInvalidData() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+            "faker.internet().emailAddress(), 'ab'",
+            "faker.internet().emailAddress(), ''",
+            "faker.internet().emailAddress(), null",
+            "faker.internet().emailAddress(), Optional.empty()",
+            "'not_email', faker.internet().password(3, 20)",
+            "'', faker.internet().password(3, 20)",
+            "null, faker.internet().password(3, 20)",
+            "Optional.empty(), faker.internet().password(3, 20)"
+
+    })
+    public void testUpdateWithInvalidData(String email, String password) throws Exception {
         var updateData = Map.of(
-                "email", "not a valid email",
-                "password", "a"
-        );
-
-        var request = put("/api/users/{id}", testUser.getId())
-                .with(token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(updateData));
-
-        mockMvc.perform(request).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testWithEmptyPassword() throws Exception {
-        var updateData = Map.of(
-                "password", Optional.empty()
+                "email", email,
+                "password", password
         );
 
         var request = put("/api/users/{id}", testUser.getId())
