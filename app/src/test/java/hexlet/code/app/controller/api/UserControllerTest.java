@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 
 import java.util.Map;
+import java.util.Optional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -152,6 +153,21 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testCreateWithEmptyPassword() throws Exception {
+        var createData = Map.of(
+                "email", faker.internet().emailAddress(),
+                "password", Optional.empty()
+        );
+
+        var request = post("/api/users")
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(createData));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void testShow() throws Exception {
         var id = testUser.getId();
         var request = get("/api/users/{id}", id).with(token);
@@ -239,6 +255,20 @@ public class UserControllerTest {
         var updateData = Map.of(
                 "email", "not a valid email",
                 "password", "a"
+        );
+
+        var request = put("/api/users/{id}", testUser.getId())
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(updateData));
+
+        mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testWithEmptyPassword() throws Exception {
+        var updateData = Map.of(
+                "password", Optional.empty()
         );
 
         var request = put("/api/users/{id}", testUser.getId())
