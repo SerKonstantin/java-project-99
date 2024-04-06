@@ -18,6 +18,7 @@ public class UserCreateDTO {
 
     private String lastName;
 
+    @NotBlank
     @Size(min = 3)
     private String password;
 }

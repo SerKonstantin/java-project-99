@@ -42,6 +42,7 @@ public class User implements UserDetails, BaseEntity {
     @Column(unique = true)
     private String email;
 
+    @NotBlank
     @Size(min = 3)
     private String encryptedPassword;
 
