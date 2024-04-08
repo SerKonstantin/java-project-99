@@ -2,6 +2,7 @@ package hexlet.code.app.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dto.task_status.TaskStatusCreateDTO;
+import hexlet.code.app.dto.task_status.TaskStatusUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.TaskStatus;
@@ -13,15 +14,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 
-import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,7 +54,7 @@ public class TaskStatusesControllerTest {
     @Autowired
     private TaskStatusRepository taskStatusRepository;
 
-    private JwtRequestPostProcessor token;
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
 
     private TaskStatus testTaskStatus;
 
@@ -84,10 +87,9 @@ public class TaskStatusesControllerTest {
 
     @Test
     public void testCreate() throws Exception {
-        var taskData = Map.of(
-                "name", "New test status name",
-                "slug", "new_test_slug"
-        );
+        var taskData = new TaskStatusCreateDTO();
+        taskData.setName("New test status name");
+        taskData.setSlug("new_test_slug");
 
         var request = post("/api/task_statuses")
                 .with(token)
@@ -95,33 +97,34 @@ public class TaskStatusesControllerTest {
                 .content(om.writeValueAsString(taskData));
         mockMvc.perform(request).andExpect(status().isCreated());
 
-        var taskStatus = taskStatusRepository.findBySlug(taskData.get("slug"))
+        var taskStatus = taskStatusRepository.findBySlug(taskData.getSlug())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "\ntestCreate() in TaskStatusesControllerTest failed\n"
                 ));
-        assertThat(taskStatus.getName()).isEqualTo(taskData.get("name"));
+        assertThat(taskStatus.getName()).isEqualTo(taskData.getName());
     }
 
     @ParameterizedTest
-    @CsvSource({
-        "'NewName', null",
-        "'NewName', ''",
-        "'NewName', Optional.empty()",
-        "null, 'new_slug'",
-        "'', 'new_slug'",
-        "Optional.empty(), 'new_slug'"
-    })
+    @MethodSource("supplyWithCreateAndUpdateInvalidData")
     public void testCreateWithInvalidData(String name, String slug) throws Exception {
-        var createData = Map.of(
-                "name", name,
-                "slug", slug
-        );
+        var createData = new TaskStatusCreateDTO();
+        createData.setName(name);
+        createData.setSlug(slug);
 
         var request = post("/api/task_statuses")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(createData));
         mockMvc.perform(request).andExpect(status().isBadRequest());
+    }
+
+    private static Stream<Arguments> supplyWithCreateAndUpdateInvalidData() {
+        return Stream.of(
+                Arguments.of("NewName", null),
+                Arguments.of("NewName", ""),
+                Arguments.of(null, "new_slug"),
+                Arguments.of("", "new_slug")
+        );
     }
 
     @Test
@@ -157,11 +160,9 @@ public class TaskStatusesControllerTest {
     @Test
     public void testUpdate() throws Exception {
         var id = testTaskStatus.getId();
-
-        var updateData = Map.of(
-                "name", "NewName",
-                "slug", "new_slug"
-        );
+        var updateData = new TaskStatusUpdateDTO();
+        updateData.setName(JsonNullable.of("NewName"));
+        updateData.setSlug(JsonNullable.of("new_slug"));
 
         var request = put("/api/task_statuses/{id}", id)
                 .with(token)
@@ -175,17 +176,15 @@ public class TaskStatusesControllerTest {
                         "\ntestUpdate in TaskStatusesControllerTest failed\n"
                 ));
 
-        assertThat(updatedTaskStatus.getName()).isEqualTo(updateData.get("name"));
-        assertThat(updatedTaskStatus.getSlug()).isEqualTo(updateData.get("slug"));
+        assertThat(updatedTaskStatus.getName()).isEqualTo(updateData.getName().get());
+        assertThat(updatedTaskStatus.getSlug()).isEqualTo(updateData.getSlug().get());
     }
 
     @Test
     public void testPartialUpdate() throws Exception {
         var id = testTaskStatus.getId();
-
-        var updateData = Map.of(
-                "name", "NewName"
-        );
+        var updateData = new TaskStatusUpdateDTO();
+        updateData.setName(JsonNullable.of("NewName"));
 
         var request = put("/api/task_statuses/{id}", id)
                 .with(token)
@@ -199,24 +198,16 @@ public class TaskStatusesControllerTest {
                         "\ntestUpdate in TaskStatusesControllerTest failed\n"
                 ));
 
-        assertThat(updatedTaskStatus.getName()).isEqualTo(updateData.get("name"));
+        assertThat(updatedTaskStatus.getName()).isEqualTo(updateData.getName().get());
         assertThat(updatedTaskStatus.getSlug()).isEqualTo(testTaskStatus.getSlug());
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "'', 'new_slug'",
-            "null, 'new_slug'",
-            "Optional.empty(), 'new_slug'",
-            "'NewName', ''",
-            "'NewName', null",
-            "'NewName', Optional.empty()"
-    })
+    @MethodSource("supplyWithCreateAndUpdateInvalidData")
     public void testUpdateWithInvalidData(String name, String slug) throws Exception {
-        var updateData = Map.of(
-                "name", name,
-                "slug", slug
-        );
+        var updateData = new TaskStatusUpdateDTO();
+        updateData.setName(JsonNullable.of(name));
+        updateData.setSlug(JsonNullable.of(slug));
 
         var request = put("/api/task_statuses/{id}", testTaskStatus.getId())
                 .with(token)
