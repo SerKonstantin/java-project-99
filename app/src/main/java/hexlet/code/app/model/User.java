@@ -49,7 +49,7 @@ public class User implements UserDetails, BaseEntity {
     @Size(min = 3)
     private String encryptedPassword;
 
-    @OneToMany(mappedBy = "assignee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "assignee", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
 
     @CreatedDate
@@ -57,16 +57,6 @@ public class User implements UserDetails, BaseEntity {
 
     @LastModifiedDate
     private LocalDate updatedAt;
-
-    public void addTask(Task task) {
-        tasks.add(task);
-        task.setAssignee(this);
-    }
-
-    public void removeTask(Task task) {
-        tasks.remove(task);
-        task.setAssignee(null);
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

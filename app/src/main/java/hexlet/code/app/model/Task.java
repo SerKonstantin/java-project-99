@@ -43,20 +43,4 @@ public class Task implements BaseEntity {
 
     @CreatedDate
     private LocalDate createdAt;
-
-    private void addStatus(TaskStatus status) {
-        status.getTasks().add(this);
-        this.setTaskStatus(status);
-    }
-
-    private void changeStatus(TaskStatus status) {
-        this.getTaskStatus().getTasks().remove(this);
-        status.getTasks().add(this);
-        this.setTaskStatus(status);
-    }
-
-    private void removeStatus() {
-        this.getTaskStatus().getTasks().remove(this);
-        this.setTaskStatus(null);
-    }
 }

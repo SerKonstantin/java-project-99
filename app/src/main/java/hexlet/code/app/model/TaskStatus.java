@@ -41,6 +41,6 @@ public class TaskStatus {
     @CreatedDate
     private LocalDate createdAt;
 
-    @OneToMany(mappedBy = "taskStatus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "taskStatus", cascade = CascadeType.MERGE)
     private List<Task> tasks = new ArrayList<>();
 }
