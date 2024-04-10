@@ -4,12 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dto.task_status.TaskStatusCreateDTO;
 import hexlet.code.app.dto.task_status.TaskStatusUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
-import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.repository.TaskStatusRepository;
-import net.datafaker.Faker;
-import org.instancio.Instancio;
-import org.instancio.Select;
+import hexlet.code.app.util.ModelUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,30 +40,24 @@ public class TaskStatusesControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private Faker faker;
-
-    @Autowired
     private ObjectMapper om;
-
-    @Autowired
-    private TaskStatusMapper taskStatusMapper;
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
 
-    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
+    @Autowired
+    private ModelUtils modelUtils;
 
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
     private TaskStatus testTaskStatus;
 
     @BeforeEach
     public void setUp() {
-        token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
-        var taskData = Instancio.of(TaskStatusCreateDTO.class)
-                .supply(Select.field(TaskStatusCreateDTO::getName), () -> "Test status name")
-                .supply(Select.field(TaskStatusCreateDTO::getSlug), () -> "test_status_slug")
-                .create();
-        testTaskStatus = taskStatusMapper.map(taskData);
+        testTaskStatus = modelUtils.generateData().getTaskStatus();
         taskStatusRepository.save(testTaskStatus);
+
+        var testUser = modelUtils.getUser();
+        token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
     }
 
     @AfterEach

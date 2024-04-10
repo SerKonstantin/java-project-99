@@ -13,12 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dto.user.UserCreateDTO;
 import hexlet.code.app.dto.user.UserUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
-import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
+import hexlet.code.app.util.ModelUtils;
 import net.datafaker.Faker;
-import org.instancio.Instancio;
-import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 
@@ -55,27 +52,15 @@ public class UserControllerTest {
     private ObjectMapper om;
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private ModelUtils modelUtils;
 
     private JwtRequestPostProcessor token;
-
     private User testUser;
 
     @BeforeEach
     public void setUp() {
-        var hashedPassword = passwordEncoder.encode(faker.internet().password(3, 20));
-        var userData = Instancio.of(UserCreateDTO.class)
-                .supply(Select.field(UserCreateDTO::getFirstName), () -> faker.name().firstName())
-                .supply(Select.field(UserCreateDTO::getLastName), () -> faker.name().lastName())
-                .supply(Select.field(UserCreateDTO::getEmail), () -> faker.internet().emailAddress())
-                .supply(Select.field(UserCreateDTO::getPassword), () -> hashedPassword)
-                .create();
-        testUser = userMapper.map(userData);
+        testUser = modelUtils.generateData().getUser();
         userRepository.save(testUser);
-
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
     }
 
