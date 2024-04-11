@@ -128,7 +128,7 @@ public class TasksControllerTest {
                 .andReturn();
 
         var responseBody = result.getResponse().getContentAsString();
-        long id = om.readTree(responseBody).get("id").asLong();
+        Long id = om.readTree(responseBody).get("id").asLong();
         var task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("\ntestCreate in TasksControllerTest failed\n"));
 

@@ -8,10 +8,10 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class TaskDTO {
-    private long id;
-    private long index;
+    private Long id;
+    private Long index;
     private LocalDate createdAt;
-    private long assigneeId;
+    private Long assigneeId;
     private String title;
     private String content;
     private String status;

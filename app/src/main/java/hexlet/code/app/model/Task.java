@@ -25,12 +25,12 @@ public class Task implements BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank
     private String name;
 
-    private long index;
+    private Long index;
 
     private String description;
 

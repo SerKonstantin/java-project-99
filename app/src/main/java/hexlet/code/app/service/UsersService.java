@@ -31,7 +31,7 @@ public class UsersService {
                 .toList();
     }
 
-    public UserDTO getById(long id) {
+    public UserDTO getById(Long id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
         return userMapper.map(user);
@@ -45,7 +45,7 @@ public class UsersService {
         return userMapper.map(user);
     }
 
-    public UserDTO update(UserUpdateDTO data, long id) {
+    public UserDTO update(UserUpdateDTO data, Long id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
 
@@ -60,7 +60,7 @@ public class UsersService {
         return userMapper.map(user);
     }
 
-    public void delete(long id) {
+    public void delete(Long id) {
         userRepository.deleteById(id);
     }
 }
