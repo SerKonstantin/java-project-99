@@ -39,6 +39,7 @@ public class TasksService {
     public TaskDTO getById(long id) {
         var task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
+        return taskMapper.map(task);
     }
 
     @Transactional
