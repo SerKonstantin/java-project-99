@@ -51,8 +51,8 @@ public class ModelUtils {
         user = userMapper.map(userData);
 
         var taskStatusData = Instancio.of(TaskStatusCreateDTO.class)
-                .supply(Select.field(TaskStatusCreateDTO::getName), () -> "Test status name")
-                .supply(Select.field(TaskStatusCreateDTO::getSlug), () -> "test_status_slug")
+                .supply(Select.field(TaskStatusCreateDTO::getName), () -> faker.lorem().word())
+                .supply(Select.field(TaskStatusCreateDTO::getSlug), () -> faker.lorem().word())
                 .create();
         taskStatus = taskStatusMapper.map(taskStatusData);
 

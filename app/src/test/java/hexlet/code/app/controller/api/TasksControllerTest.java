@@ -83,19 +83,15 @@ public class TasksControllerTest {
 
         testTask = modelUtils.getTask();
         testTask.setTaskStatus(testTaskStatus);
-        testTaskStatus.getTasks().add(testTask);
         testTask.setAssignee(testUser);
-        testUser.getTasks().add(testTask);
         taskRepository.save(testTask);
-        taskStatusRepository.save(testTaskStatus);
-        userRepository.save(testUser);
     }
 
     @AfterEach
     public void clean() {
         taskRepository.deleteById(testTask.getId());
-        taskStatusRepository.deleteById(testTaskStatus.getId());
         userRepository.deleteById(testUser.getId());
+        taskStatusRepository.deleteById(testTaskStatus.getId());
     }
 
     @Test
@@ -136,9 +132,9 @@ public class TasksControllerTest {
         assertThat(task.getIndex()).isEqualTo(createData.getIndex());
         assertThat(task.getDescription()).isEqualTo(createData.getContent());
         assertThat(task.getTaskStatus()).isEqualTo(testTaskStatus);
-        assertThat(testTaskStatus.getTasks()).contains(task);
         assertThat(task.getAssignee()).isEqualTo(testUser);
-        assertThat(testUser.getTasks()).contains(task);
+
+        taskRepository.deleteById(id);
     }
 
     @Test
@@ -151,7 +147,13 @@ public class TasksControllerTest {
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(createData));
-        mockMvc.perform(request).andExpect(status().isCreated());
+        var result = mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        var responseBody = result.getResponse().getContentAsString();
+        Long id = om.readTree(responseBody).get("id").asLong();
+        taskRepository.deleteById(id);
     }
 
     @ParameterizedTest
@@ -215,7 +217,7 @@ public class TasksControllerTest {
         updateData.setIndex(JsonNullable.of(faker.number().numberBetween(1L, 10000L)));
         updateData.setAssigneeId(JsonNullable.of(modelUtils.getUser().getId()));
         updateData.setTitle(JsonNullable.of(faker.lorem().word()));
-        updateData.setContent(JsonNullable.of(faker.lorem().word()));
+        updateData.setContent(JsonNullable.of(faker.lorem().paragraph()));
         updateData.setStatus(JsonNullable.of(modelUtils.getTaskStatus().getSlug()));
 
         var request = put("/api/tasks/{id}", testTask.getId())

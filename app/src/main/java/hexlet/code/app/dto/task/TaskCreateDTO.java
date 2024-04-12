@@ -15,6 +15,6 @@ public class TaskCreateDTO {
     @NotBlank
     private String title;
 
-    @NotNull
+    @NotBlank
     private String status;
 }
