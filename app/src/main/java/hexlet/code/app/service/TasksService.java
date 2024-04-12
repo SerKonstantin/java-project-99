@@ -67,18 +67,18 @@ public class TasksService {
 
     @Transactional
     public TaskDTO update(TaskUpdateDTO data, Long id) {
-         var task = taskRepository.findById(id)
-                 .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
+        var task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
 
-         taskMapper.update(data, task);
+        taskMapper.update(data, task);
 
-         if (data.getAssigneeId() != null && data.getAssigneeId().get() != null) {
-             var user = userRepository.findById(data.getAssigneeId().get())
-                     .orElseThrow(() -> new ResourceNotFoundException(
-                             "Cannot find user with id " + data.getAssigneeId().get()
-                     ));
-             task.setAssignee(user);
-         }
+        if (data.getAssigneeId() != null && data.getAssigneeId().get() != null) {
+            var user = userRepository.findById(data.getAssigneeId().get())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Cannot find user with id " + data.getAssigneeId().get()
+                    ));
+            task.setAssignee(user);
+        }
 
         if (data.getStatus() != null && data.getStatus().get() != null) {
             var taskStatus = taskStatusRepository.findBySlug(data.getStatus().get())
