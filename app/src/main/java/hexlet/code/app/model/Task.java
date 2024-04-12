@@ -1,5 +1,6 @@
 package hexlet.code.app.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
@@ -32,6 +33,7 @@ public class Task implements BaseEntity {
 
     private Long index;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @NotNull

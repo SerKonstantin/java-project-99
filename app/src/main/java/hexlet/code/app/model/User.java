@@ -49,7 +49,7 @@ public class User implements UserDetails, BaseEntity {
     @Size(min = 3)
     private String encryptedPassword;
 
-    @OneToMany(mappedBy = "assignee", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany(mappedBy = "assignee", cascade = CascadeType.MERGE)
     private List<Task> tasks = new ArrayList<>();
 
     @CreatedDate

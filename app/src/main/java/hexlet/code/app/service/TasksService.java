@@ -51,17 +51,15 @@ public class TasksService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Cannot find user with id " + data.getAssigneeId()
                     ));
-            user.getTasks().add(task);
             task.setAssignee(user);
-            userRepository.save(user);
         }
 
-        var taskStatusSlug = data.getStatus();
-        var taskStatus = taskStatusRepository.findBySlug(taskStatusSlug)
-                .orElseThrow(() -> new ResourceNotFoundException("Cannot find status with slug " + taskStatusSlug));
-        taskStatus.getTasks().add(task);
-        task.setTaskStatus(taskStatus);
-        taskStatusRepository.save(taskStatus);
+        if (data.getStatus() != null) {
+            var taskStatusSlug = data.getStatus();
+            var taskStatus = taskStatusRepository.findBySlug(taskStatusSlug)
+                    .orElseThrow(() -> new ResourceNotFoundException("Cannot find status with slug " + taskStatusSlug));
+            task.setTaskStatus(taskStatus);
+        }
 
         taskRepository.save(task);
         return taskMapper.map(task);
@@ -80,8 +78,6 @@ public class TasksService {
                              "Cannot find user with id " + data.getAssigneeId().get()
                      ));
              task.setAssignee(user);
-             user.getTasks().add(task);
-             userRepository.save(user);
          }
 
         if (data.getStatus() != null && data.getStatus().get() != null) {
@@ -90,8 +86,6 @@ public class TasksService {
                             "Cannot find status with slug " + data.getStatus().get()
                     ));
             task.setTaskStatus(taskStatus);
-            taskStatus.getTasks().add(task);
-            taskStatusRepository.save(taskStatus);
         }
 
         taskRepository.save(task);
