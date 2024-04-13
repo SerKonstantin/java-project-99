@@ -13,6 +13,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
@@ -34,7 +35,7 @@ public abstract class TaskMapper {
     @Mapping(target = "name", source = "title")
     @Mapping(target = "description", source = "content")
     @Mapping(target = "taskStatus.slug", source = "status")
-    @Mapping(target = "labels", source = "labelIds", qualifiedByName = "findLabelsByIds")
+    @Mapping(target = "labels", source = "labelIds")
     public abstract Task map(TaskCreateDTO dto);
 
     @Mapping(target = "assigneeId", source = "assignee.id")
@@ -46,11 +47,11 @@ public abstract class TaskMapper {
     @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "name", source = "title")
     @Mapping(target = "description", source = "content")
-    @Mapping(target = "labels", source = "labelIds", qualifiedByName = "findLabelsByIds")
+    @Mapping(target = "labels", source = "labelIds")
     public abstract void update(TaskUpdateDTO dto, @MappingTarget Task model);
 
-    private Set<Label> findLabelsByIds(Set<Long> labelIds) {
-        if (labelIds == null || labelIds.isEmpty()) {
+    protected Set<Label> map(Set<Long> labelIds) {
+        if (labelIds == null || labelIds.isEmpty() || labelIds.contains(null)) {
             return new HashSet<>();
         }
 
@@ -59,5 +60,9 @@ public abstract class TaskMapper {
                         "Label with id" + id + "not found"
                 )))
                 .collect(Collectors.toSet());
+    }
+
+    protected Set<Label> map(JsonNullable<Set<Long>> nullableLabelIds) {
+        return map(nullableLabelIds.get());
     }
 }
