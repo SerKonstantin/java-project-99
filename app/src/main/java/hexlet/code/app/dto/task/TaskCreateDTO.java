@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 public class TaskCreateDTO {
@@ -16,4 +18,6 @@ public class TaskCreateDTO {
 
     @NotBlank
     private String status;
+
+    private Set<Long> labelIds;
 }

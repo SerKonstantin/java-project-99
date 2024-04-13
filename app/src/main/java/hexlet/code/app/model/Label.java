@@ -7,10 +7,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,12 +20,12 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
-@Table(name = "tasks")
+@Table(name = "labels")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Task implements BaseEntity {
+public class Label {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,22 +33,12 @@ public class Task implements BaseEntity {
     private Long id;
 
     @NotBlank
+    @Column(unique = true)
+    @Size(min = 3, max = 1000)
     private String name;
 
-    private Long index;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @NotNull
-    @ManyToOne
-    private TaskStatus taskStatus;
-
-    @ManyToOne
-    private User assignee;
-
-    @ManyToMany
-    private Set<Label> labels;
+    @ManyToMany(mappedBy = "labels")
+    private Set<Task> tasks;
 
     @CreatedDate
     private LocalDate createdAt;
