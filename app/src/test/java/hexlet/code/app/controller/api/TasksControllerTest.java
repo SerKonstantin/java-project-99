@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dto.task.TaskCreateDTO;
 import hexlet.code.app.dto.task.TaskUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
@@ -30,6 +32,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -60,6 +64,9 @@ public class TasksControllerTest {
     private TaskRepository taskRepository;
 
     @Autowired
+    private LabelRepository labelRepository;
+
+    @Autowired
     private Faker faker;
 
     @Autowired
@@ -69,6 +76,8 @@ public class TasksControllerTest {
     private User testUser;
     private Task testTask;
     private TaskStatus testTaskStatus;
+    private Label testLabel;
+    private Set<Label> testLabels;
 
     @BeforeEach
     public void setUp() {
@@ -81,9 +90,15 @@ public class TasksControllerTest {
         testTaskStatus = modelUtils.getTaskStatus();
         taskStatusRepository.save(testTaskStatus);
 
+        testLabel = modelUtils.getLabel();
+        labelRepository.save(testLabel);
+        testLabels = new HashSet<>();
+        testLabels.add(testLabel);
+
         testTask = modelUtils.getTask();
         testTask.setTaskStatus(testTaskStatus);
         testTask.setAssignee(testUser);
+        testTask.setLabels(testLabels);
         taskRepository.save(testTask);
     }
 
@@ -92,6 +107,7 @@ public class TasksControllerTest {
         taskRepository.deleteById(testTask.getId());
         userRepository.deleteById(testUser.getId());
         taskStatusRepository.deleteById(testTaskStatus.getId());
+        labelRepository.deleteById(testLabel.getId());
     }
 
     @Test
@@ -113,6 +129,7 @@ public class TasksControllerTest {
         createData.setTitle(faker.lorem().word());
         createData.setContent(faker.lorem().paragraph());
         createData.setStatus(testTaskStatus.getSlug());
+        createData.setLabelIds(Set.of(testLabel.getId()));
 
         var request = post("/api/tasks")
                 .with(token)
@@ -133,6 +150,7 @@ public class TasksControllerTest {
         assertThat(task.getDescription()).isEqualTo(createData.getContent());
         assertThat(task.getTaskStatus()).isEqualTo(testTaskStatus);
         assertThat(task.getAssignee()).isEqualTo(testUser);
+        assertThat(task.getLabels()).contains(testLabel);
 
         taskRepository.deleteById(id);
     }

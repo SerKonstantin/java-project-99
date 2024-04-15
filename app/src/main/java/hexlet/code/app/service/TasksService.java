@@ -5,6 +5,7 @@ import hexlet.code.app.dto.task.TaskDTO;
 import hexlet.code.app.dto.task.TaskUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskMapper;
+import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TasksService {
@@ -28,6 +30,9 @@ public class TasksService {
 
     @Autowired
     private TaskMapper taskMapper;
+
+    @Autowired
+    private LabelRepository labelRepository;
 
     public List<TaskDTO> getAll() {
         var tasks = taskRepository.findAll();
@@ -61,6 +66,15 @@ public class TasksService {
             task.setTaskStatus(taskStatus);
         }
 
+        if (data.getLabelIds() != null && !data.getLabelIds().isEmpty()) {
+            var labels = data.getLabelIds().stream()
+                    .map(id -> labelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+                            "Label with id" + id + "not found"
+                    )))
+                    .collect(Collectors.toSet());
+            task.setLabels(labels);
+        }
+
         taskRepository.save(task);
         return taskMapper.map(task);
     }
@@ -86,6 +100,15 @@ public class TasksService {
                             "Cannot find status with slug " + data.getStatus().get()
                     ));
             task.setTaskStatus(taskStatus);
+        }
+
+        if (data.getLabelIds() != null && data.getLabelIds().get() != null && !data.getLabelIds().get().isEmpty()) {
+            var labels = data.getLabelIds().get().stream()
+                    .map(labelId -> labelRepository.findById(labelId).orElseThrow(() -> new ResourceNotFoundException(
+                            "Label with id" + labelId + "not found"
+                    )))
+                    .collect(Collectors.toSet());
+            task.setLabels(labels);
         }
 
         taskRepository.save(task);
