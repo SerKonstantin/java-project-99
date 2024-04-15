@@ -1,8 +1,11 @@
 package hexlet.code.app.component;
 
+import hexlet.code.app.dto.label.LabelCreateDTO;
 import hexlet.code.app.dto.task_status.TaskStatusCreateDTO;
+import hexlet.code.app.mapper.LabelMapper;
 import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
 import hexlet.code.app.service.CustomUserDetailsService;
@@ -12,6 +15,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -29,6 +33,12 @@ public class DataInitializer implements ApplicationRunner {
 
     @Autowired
     private final TaskStatusMapper taskStatusMapper;
+
+    @Autowired
+    private final LabelRepository labelRepository;
+
+    @Autowired
+    private final LabelMapper labelMapper;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -57,9 +67,19 @@ public class DataInitializer implements ApplicationRunner {
             taskStatusRepository.save(taskStatus);
         }
 
+        var defaultLabels = List.of(
+                "feature",
+                "bug"
+        );
+        for (var labelName : defaultLabels) {
+            var labelCreateDTO = new LabelCreateDTO();
+            labelCreateDTO.setName(labelName);
+            var label = labelMapper.map(labelCreateDTO);
+            labelRepository.save(label);
+        }
+
 
         // TODO separate methods?
-        // TODO create faker users with tasks and assignments
 
     }
 }
