@@ -66,7 +66,7 @@ public class TaskStatusesControllerTest {
     }
 
     @Test
-    public void index() throws Exception {
+    public void testIndex() throws Exception {
         var request = get("/api/task_statuses").with(token);
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
