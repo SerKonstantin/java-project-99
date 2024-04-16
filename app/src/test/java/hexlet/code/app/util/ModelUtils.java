@@ -1,9 +1,5 @@
 package hexlet.code.app.util;
 
-import hexlet.code.app.dto.label.LabelCreateDTO;
-import hexlet.code.app.dto.task.TaskCreateDTO;
-import hexlet.code.app.dto.task_status.TaskStatusCreateDTO;
-import hexlet.code.app.dto.user.UserCreateDTO;
 import hexlet.code.app.mapper.LabelMapper;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.mapper.TaskStatusMapper;
@@ -50,37 +46,56 @@ public class ModelUtils {
     private Label label;
 
     public ModelUtils generateData() {
-        var hashedPassword = passwordEncoder.encode(faker.internet().password(3, 20));
-        var userData = Instancio.of(UserCreateDTO.class)
-                .supply(Select.field(UserCreateDTO::getFirstName), () -> faker.name().firstName())
-                .supply(Select.field(UserCreateDTO::getLastName), () -> faker.name().lastName())
-                .supply(Select.field(UserCreateDTO::getEmail), () -> faker.internet().emailAddress())
-                .supply(Select.field(UserCreateDTO::getPassword), () -> hashedPassword)
-                .create();
-        user = userMapper.map(userData);
-
-        var taskStatusData = Instancio.of(TaskStatusCreateDTO.class)
-                .supply(Select.field(TaskStatusCreateDTO::getName), () -> faker.lorem().word())
-                .supply(Select.field(TaskStatusCreateDTO::getSlug), () -> faker.lorem().word())
-                .create();
-        taskStatus = taskStatusMapper.map(taskStatusData);
-
-        var labelData = Instancio.of(LabelCreateDTO.class)
-                .supply(Select.field(LabelCreateDTO::getName), () -> faker.lorem().characters(3, 1000))
-                .create();
-        label = labelMapper.map(labelData);
-
-        var taskData = Instancio.of(TaskCreateDTO.class)
-                .supply(Select.field(TaskCreateDTO::getIndex), () -> faker.number().numberBetween(1L, 10000L))
-                .supply(Select.field(TaskCreateDTO::getAssigneeId), () -> user.getId())
-                .supply(Select.field(TaskCreateDTO::getTitle), () -> faker.lorem().word())
-                .supply(Select.field(TaskCreateDTO::getContent), () -> faker.lorem().paragraph())
-                .supply(Select.field(TaskCreateDTO::getStatus), () -> taskStatus.getSlug())
-                .supply(Select.field(TaskCreateDTO::getLabelIds), () -> new HashSet<Long>())
-                .create();
-        taskData.getLabelIds().add(label.getId());
-        task = taskMapper.map(taskData);
+        createUser();
+        createTaskStatus();
+        createLabel();
+        createTask();
 
         return this;
+    }
+
+    private void createUser() {
+        var encodedPassword = passwordEncoder.encode(faker.internet().password(3, 20));
+        user = Instancio.of(User.class)
+                .ignore(Select.field(User::getId))
+                .supply(Select.field(User::getFirstName), () -> faker.name().firstName())
+                .supply(Select.field(User::getLastName), () -> faker.name().lastName())
+                .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
+                .supply(Select.field(User::getEncryptedPassword), () -> encodedPassword)
+                .ignore(Select.field(User::getCreatedAt))
+                .ignore(Select.field(User::getUpdatedAt))
+                .create();
+    }
+
+    private void createTaskStatus() {
+        taskStatus = Instancio.of(TaskStatus.class)
+                .ignore(Select.field(TaskStatus::getId))
+                .supply(Select.field(TaskStatus::getName), () -> faker.lorem().word())
+                .supply(Select.field(TaskStatus::getSlug), () -> faker.lorem().word())
+                .ignore(Select.field(TaskStatus::getCreatedAt))
+                .ignore(Select.field(TaskStatus::getTasks))
+                .create();
+    }
+
+    private void createLabel() {
+        label = Instancio.of(Label.class)
+                .ignore(Select.field(Label::getId))
+                .supply(Select.field(Label::getName), () -> faker.lorem().characters(3, 1000))
+                .ignore(Select.field(Label::getTasks))
+                .ignore(Select.field(Label::getCreatedAt))
+                .create();
+    }
+
+    private void createTask() {
+        task = Instancio.of(Task.class)
+                .ignore(Select.field(Task::getId))
+                .supply(Select.field(Task::getName), () -> faker.lorem().word())
+                .supply(Select.field(Task::getIndex), () -> faker.number().numberBetween(1L, 10000L))
+                .supply(Select.field(Task::getDescription), () -> faker.lorem().paragraph())
+                .supply(Select.field(Task::getTaskStatus), () -> taskStatus)
+                .supply(Select.field(Task::getAssignee), () -> user)
+                .supply(Select.field(Task::getLabels), () -> new HashSet<Long>())
+                .create();
+        task.getLabels().add(label);
     }
 }
