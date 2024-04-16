@@ -6,7 +6,9 @@ import hexlet.code.app.dto.task.TaskUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.model.Label;
 import hexlet.code.app.model.Task;
+import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.repository.LabelRepository;
+import hexlet.code.app.repository.TaskStatusRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -31,10 +33,13 @@ public abstract class TaskMapper {
     @Autowired
     private LabelRepository labelRepository;
 
+    @Autowired
+    private TaskStatusRepository taskStatusRepository;
+
     @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "name", source = "title")
     @Mapping(target = "description", source = "content")
-    @Mapping(target = "taskStatus.slug", source = "status")
+    @Mapping(target = "taskStatus", source = "status")
     @Mapping(target = "labels", source = "labelIds")
     public abstract Task map(TaskCreateDTO dto);
 
@@ -42,28 +47,46 @@ public abstract class TaskMapper {
     @Mapping(target = "title", source = "name")
     @Mapping(target = "content", source = "description")
     @Mapping(target = "status", source = "taskStatus.slug")
+    @Mapping(target = "labelIds", source = "labels")
     public abstract TaskDTO map(Task model);
 
     @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "name", source = "title")
     @Mapping(target = "description", source = "content")
-    @Mapping(target = "taskStatus.slug", source = "status")
+    @Mapping(target = "taskStatus", source = "status")
     @Mapping(target = "labels", source = "labelIds")
     public abstract void update(TaskUpdateDTO dto, @MappingTarget Task model);
 
-    protected Set<Label> map(Set<Long> labelIds) {
+    protected TaskStatus taskStatusFromSlug(String slug) {
+        return taskStatusRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Slug " + slug + " not found"));
+    }
+
+    protected Set<Label> labelsFromIds(Set<Long> labelIds) {
         if (labelIds == null || labelIds.isEmpty() || labelIds.contains(null)) {
             return new HashSet<>();
         }
-
         return labelIds.stream()
                 .map(id -> labelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
-                        "Label with id" + id + "not found"
+                        "Label with id " + id + " not found"
                 )))
                 .collect(Collectors.toSet());
     }
 
-    protected Set<Label> map(JsonNullable<Set<Long>> nullableLabelIds) {
-        return map(nullableLabelIds.get());
+    protected Set<Label> labelsFromNullables(JsonNullable<Set<Long>> nullableLabelIds) {
+        return nullableLabelIds == null ? new HashSet<>() :  labelsFromIds(nullableLabelIds.get());
+    }
+
+    protected Set<Long> labelIdsFromLabels(Set<Label> labels) {
+        if (labels == null || labels.isEmpty() || labels.contains(null)) {
+            return new HashSet<>();
+        }
+        return labels.stream()
+                .map(Label::getId)
+                .collect(Collectors.toSet());
+    }
+
+    protected Set<Long> labelIdsFromNullables(JsonNullable<Set<Label>> nullableLabels) {
+        return nullableLabels == null ? new HashSet<>() : labelIdsFromLabels(nullableLabels.get());
     }
 }
