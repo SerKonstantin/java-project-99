@@ -10,6 +10,7 @@ plugins {
 	id("com.github.ben-manes.versions") version "0.50.0"
 	id("io.freefair.lombok") version "8.4"
 	id("com.github.johnrengelman.shadow") version "8.1.1"
+	id("io.sentry.jvm.gradle") version "4.4.1"
 }
 
 group = "hexlet.code"
@@ -70,4 +71,11 @@ tasks.jacocoTestReport {
 	reports {
 		xml.required = true
 	}
+}
+
+sentry {
+	includeSourceContext = true
+	org = "education"
+	projectName = "task-manager"
+	authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
