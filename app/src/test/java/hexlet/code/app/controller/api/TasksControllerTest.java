@@ -121,6 +121,39 @@ public class TasksControllerTest {
         assertThatJson(body).isArray();
     }
 
+    @ParameterizedTest
+    @MethodSource("supplyIndexWithParamCombinations")
+    public void testIndexWithParams(boolean hasSubstr, boolean hasAssigneeId, boolean hasStatus, boolean hasLabel)
+            throws Exception {
+        var substrParam = hasSubstr ? "&titleCont=" +  testTask.getName().substring(1) : "";
+        var assigneeIdParam = hasAssigneeId ? "&assigneeId=" + testUser.getId() : "";
+        var statusParam = hasStatus ? "&status=" + testTaskStatus.getSlug() : "";
+        var labelIdParam = hasLabel ? "&labelId=" + testLabel.getId() : "";
+
+        var combinedParams = substrParam + assigneeIdParam + statusParam + labelIdParam;
+        var path = "/api/tasks?" + combinedParams.substring(1);
+
+        var request = get(path).with(token);
+        var result = mockMvc.perform(request).andExpect(status().isOk()).andReturn();
+        var body = result.getResponse().getContentAsString();
+
+        assertThatJson(body).isArray().isNotEmpty();
+        var jsonNode = om.readTree(body);
+        for (var element : jsonNode) {
+            assertThat(element.get("id").asLong()).isEqualTo(testTask.getId());
+        }
+    }
+
+    private Stream<Arguments> supplyIndexWithParamCombinations() {
+        return Stream.of(
+                Arguments.of(true, false, false, false),
+                Arguments.of(false, true, false, false),
+                Arguments.of(false, false, true, false),
+                Arguments.of(false, false, false, true),
+                Arguments.of(true, true, true, true)
+        );
+    }
+
     @Test
     public void testCreate() throws Exception {
         var createData = new TaskCreateDTO();
