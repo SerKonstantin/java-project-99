@@ -42,6 +42,12 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        addFirstUser();
+        addDefaultTaskStatuses();
+        addDefaultLabels();
+    }
+
+    private void addFirstUser() {
         var email = "hexlet@example.com";
         var password = "qwerty";
 
@@ -51,35 +57,39 @@ public class DataInitializer implements ApplicationRunner {
             userData.setEncryptedPassword(password);
             userService.createUser(userData);
         }
+    }
 
-        var defaultSlugs = Map.of(
+    private void addDefaultTaskStatuses() {
+        var defaultStatuses = Map.of(
                 "draft", "Draft",
                 "to_review", "To review",
                 "to_be_fixed", "To be fixed",
                 "to_publish", "To publish",
                 "published", "Published"
         );
-        for (var entry : defaultSlugs.entrySet()) {
-            var taskStatusCreateDTO = new TaskStatusCreateDTO();
-            taskStatusCreateDTO.setSlug(entry.getKey());
-            taskStatusCreateDTO.setName(entry.getValue());
-            var taskStatus = taskStatusMapper.map(taskStatusCreateDTO);
-            taskStatusRepository.save(taskStatus);
+        for (var entry : defaultStatuses.entrySet()) {
+            if (taskStatusRepository.findBySlug(entry.getKey()).isEmpty()) {
+                var taskStatusCreateDTO = new TaskStatusCreateDTO();
+                taskStatusCreateDTO.setSlug(entry.getKey());
+                taskStatusCreateDTO.setName(entry.getValue());
+                var taskStatus = taskStatusMapper.map(taskStatusCreateDTO);
+                taskStatusRepository.save(taskStatus);
+            }
         }
+    }
 
+    private void addDefaultLabels() {
         var defaultLabels = List.of(
                 "feature",
                 "bug"
         );
         for (var labelName : defaultLabels) {
-            var labelCreateDTO = new LabelCreateDTO();
-            labelCreateDTO.setName(labelName);
-            var label = labelMapper.map(labelCreateDTO);
-            labelRepository.save(label);
+            if (labelRepository.findByName(labelName).isEmpty()) {
+                var labelCreateDTO = new LabelCreateDTO();
+                labelCreateDTO.setName(labelName);
+                var label = labelMapper.map(labelCreateDTO);
+                labelRepository.save(label);
+            }
         }
-
-
-        // TODO separate methods?
-
     }
 }
