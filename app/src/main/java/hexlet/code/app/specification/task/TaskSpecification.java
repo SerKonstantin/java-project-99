@@ -26,9 +26,7 @@ public class TaskSpecification {
     }
 
     private Specification<Task> withAssigneeId(Long id) {
-        return (root, query, cb) -> {
-            return id == null ? cb.conjunction() : cb.equal(root.get("assignee").get("id"), id);
-        };
+        return (root, query, cb) -> id == null ? cb.conjunction() : cb.equal(root.get("assignee").get("id"), id);
     }
 
     private Specification<Task> withStatus(String slug) {
@@ -38,8 +36,6 @@ public class TaskSpecification {
     }
 
     private Specification<Task> withLabelId(Long id) {
-        return (root, query, cb) -> {
-            return id == null ? cb.conjunction() : cb.equal(root.get("labels").get("id"), id);
-        };
+        return (root, query, cb) -> id == null ? cb.conjunction() : cb.equal(root.get("labels").get("id"), id);
     }
 }

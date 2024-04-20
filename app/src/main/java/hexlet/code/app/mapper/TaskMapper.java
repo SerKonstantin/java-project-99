@@ -40,21 +40,21 @@ public abstract class TaskMapper {
     @Mapping(target = "name", source = "title")
     @Mapping(target = "description", source = "content")
     @Mapping(target = "taskStatus", source = "status")
-    @Mapping(target = "labels", source = "labelIds")
+    @Mapping(target = "labels", source = "taskLabelIds")
     public abstract Task map(TaskCreateDTO dto);
 
     @Mapping(target = "assigneeId", source = "assignee.id")
     @Mapping(target = "title", source = "name")
     @Mapping(target = "content", source = "description")
     @Mapping(target = "status", source = "taskStatus.slug")
-    @Mapping(target = "labelIds", source = "labels")
+    @Mapping(target = "taskLabelIds", source = "labels")
     public abstract TaskDTO map(Task model);
 
     @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "name", source = "title")
     @Mapping(target = "description", source = "content")
     @Mapping(target = "taskStatus", source = "status")
-    @Mapping(target = "labels", source = "labelIds")
+    @Mapping(target = "labels", source = "taskLabelIds")
     public abstract void update(TaskUpdateDTO dto, @MappingTarget Task model);
 
     protected TaskStatus taskStatusFromSlug(String slug) {
@@ -62,11 +62,11 @@ public abstract class TaskMapper {
                 .orElseThrow(() -> new ResourceNotFoundException("Slug " + slug + " not found"));
     }
 
-    protected Set<Label> labelsFromIds(Set<Long> labelIds) {
-        if (labelIds == null || labelIds.isEmpty() || labelIds.contains(null)) {
+    protected Set<Label> labelsFromIds(Set<Long> taskLabelIds) {
+        if (taskLabelIds == null || taskLabelIds.isEmpty() || taskLabelIds.contains(null)) {
             return new HashSet<>();
         }
-        return labelIds.stream()
+        return taskLabelIds.stream()
                 .map(id -> labelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
                         "Label with id " + id + " not found"
                 )))

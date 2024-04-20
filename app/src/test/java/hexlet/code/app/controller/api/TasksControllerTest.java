@@ -162,7 +162,7 @@ public class TasksControllerTest {
         createData.setTitle(faker.lorem().word());
         createData.setContent(faker.lorem().paragraph());
         createData.setStatus(testTaskStatus.getSlug());
-        createData.setLabelIds(Set.of(testLabel.getId()));
+        createData.setTaskLabelIds(Set.of(testLabel.getId()));
 
         var request = post("/api/tasks")
                 .with(token)
