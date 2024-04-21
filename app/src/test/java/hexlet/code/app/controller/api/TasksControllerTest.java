@@ -240,7 +240,7 @@ public class TasksControllerTest {
 
         assertThatJson(responseBody).and(
                 body -> body.node("index").isEqualTo(testTask.getIndex()),
-                body -> body.node("assigneeId").isEqualTo(testUser.getId()),
+                body -> body.node("assignee_id").isEqualTo(testUser.getId()),
                 body -> body.node("title").isEqualTo(testTask.getName()),
                 body -> body.node("content").isEqualTo(testTask.getDescription()),
                 body -> body.node("status").isEqualTo(testTaskStatus.getSlug())
