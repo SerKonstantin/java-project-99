@@ -74,11 +74,13 @@ tasks.jacocoTestReport {
 	}
 }
 
-sentry {
-	includeSourceContext = true
-	org = "education"
-	projectName = "task-manager"
-	authToken = System.getenv("SENTRY_AUTH_TOKEN")
+if (System.getenv("SENTRY_AUTH_TOKEN") != null) {
+	sentry {
+		includeSourceContext = true
+		org = "education"
+		projectName = "task-manager"
+		authToken = System.getenv("SENTRY_AUTH_TOKEN")
+	}
 }
 
 
