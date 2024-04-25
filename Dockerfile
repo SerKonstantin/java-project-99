@@ -18,4 +18,4 @@ COPY . .
 
 RUN gradle installDist
 
-CMD ./build/install/java-project-99/bin/java-project-99
+CMD ./build/install/app/bin/app
