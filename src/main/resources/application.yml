@@ -14,6 +14,6 @@ rsa:
   public-key: ${RSA_PUBLIC_KEY:classpath:certs/public.pem}
 
 sentry:
-  sentry.dsn=https://ca078e05dc8e68f551ac2ac6e9f8cf21@o4507102870110208.ingest.de.sentry.io/4507102872666192
-  sentry.traces-sample-rate=1.0
-  sentry.exception-resolver-order=-2147483647
+  dsn: https://ca078e05dc8e68f551ac2ac6e9f8cf21@o4507102870110208.ingest.de.sentry.io/4507102872666192
+  sentry.traces-sample-rate: 1.0
+  sentry.exception-resolver-order: -2147483647
