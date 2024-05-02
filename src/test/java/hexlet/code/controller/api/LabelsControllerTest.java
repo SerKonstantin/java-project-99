@@ -4,8 +4,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.dto.label.LabelCreateDTO;
-import hexlet.code.dto.label.LabelUpdateDTO;
+import hexlet.code.dto.label.LabelInputDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
@@ -72,7 +71,7 @@ public class LabelsControllerTest {
 
     @Test
     public void testCreate() throws Exception {
-        var labelData = new LabelCreateDTO();
+        var labelData = new LabelInputDTO();
         labelData.setName("NewTestLabel");
 
         var request = post("/api/labels")
@@ -93,7 +92,7 @@ public class LabelsControllerTest {
 
     @Test
     public void testCreateWithInvalidData() throws Exception {
-        var labelData = new LabelCreateDTO();
+        var labelData = new LabelInputDTO();
         labelData.setName("nl");
         var request = post("/api/labels")
                 .with(token)
@@ -129,7 +128,7 @@ public class LabelsControllerTest {
     @Test
     public void testUpdate() throws Exception {
         var id = testLabel.getId();
-        var labelData = new LabelUpdateDTO();
+        var labelData = new LabelInputDTO();
         labelData.setName("NewTestLabel");
         var request = put("/api/labels/{id}", id)
                 .with(token)
@@ -144,7 +143,7 @@ public class LabelsControllerTest {
 
     @Test
     public void updateWithInvalidData() throws Exception {
-        var labelData = new LabelUpdateDTO();
+        var labelData = new LabelInputDTO();
         labelData.setName("nl");
         var request = put("/api/labels/{id}", testLabel.getId())
                 .with(token)

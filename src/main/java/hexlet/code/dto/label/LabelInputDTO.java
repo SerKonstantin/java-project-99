@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LabelUpdateDTO {
+public class LabelInputDTO {
     @NotBlank
     @Size(min = 3, max = 1000)
     private String name;

@@ -1,6 +1,6 @@
 package hexlet.code.component;
 
-import hexlet.code.dto.label.LabelCreateDTO;
+import hexlet.code.dto.label.LabelInputDTO;
 import hexlet.code.dto.task_status.TaskStatusCreateDTO;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.mapper.TaskStatusMapper;
@@ -85,7 +85,7 @@ public class DataInitializer implements ApplicationRunner {
         );
         for (var labelName : defaultLabels) {
             if (labelRepository.findByName(labelName).isEmpty()) {
-                var labelCreateDTO = new LabelCreateDTO();
+                var labelCreateDTO = new LabelInputDTO();
                 labelCreateDTO.setName(labelName);
                 var label = labelMapper.map(labelCreateDTO);
                 labelRepository.save(label);

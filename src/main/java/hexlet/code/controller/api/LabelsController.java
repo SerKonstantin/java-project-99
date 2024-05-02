@@ -1,8 +1,7 @@
 package hexlet.code.controller.api;
 
-import hexlet.code.dto.label.LabelCreateDTO;
+import hexlet.code.dto.label.LabelInputDTO;
 import hexlet.code.dto.label.LabelDTO;
-import hexlet.code.dto.label.LabelUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.repository.LabelRepository;
@@ -44,7 +43,7 @@ public class LabelsController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public LabelDTO create(@Valid @RequestBody LabelCreateDTO dto) {
+    public LabelDTO create(@Valid @RequestBody LabelInputDTO dto) {
         var label = labelMapper.map(dto);
         labelRepository.save(label);
         return labelMapper.map(label);
@@ -59,7 +58,7 @@ public class LabelsController {
     }
 
     @PutMapping("/{id}")
-    public LabelDTO update(@Valid @RequestBody LabelUpdateDTO dto, @PathVariable Long id) {
+    public LabelDTO update(@Valid @RequestBody LabelInputDTO dto, @PathVariable Long id) {
         var label = labelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Label with id " + id + " not found"));
         labelMapper.update(dto, label);
